@@ -3,125 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Voice‑Powered Google Search</title>
+    <title>Voice‑Powered Search Launcher</title>
     <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
-        font-family: "Roboto", sans-serif;
-      }
-      .card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-
-        width: 100%;
-        max-width: 420px;
-        text-align: center;
-      }
-      h2 {
-        font-weight: 500;
-        margin-bottom: 20px;
-        color: #333;
-      }
-      .input-container {
-        position: relative;
-        margin: 20px 0;
-      }
-      #searchBox {
-        width: 100%;
-        padding: 14px 50px 14px 20px;
-        font-size: 16px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        transition: border-color 0.3s;
-      }
-      #searchBox:focus {
-        outline: none;
-        border-color: #4facfe;
-      }
-      #micBtn {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s;
-      }
-      #micBtn svg {
-        width: 24px;
-        height: 24px;
-        fill: #4facfe;
-        transition: fill 0.3s, transform 0.2s;
-      }
-      #micBtn:hover svg {
-        fill: #00c6fb;
-        transform: scale(1.1);
-      }
-      #micBtn.listening svg {
-        fill: #fc4f4f;
-        animation: pulse 1s infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.2);
-        }
-      }
-      #status {
-        margin-top: 10px;
-        font-size: 14px;
-        color: #666;
-      }
-      .img-main {
-        max-width: 100%;
-        height: auto;
-        border-radius: 12px 12px 0 0;
-      }
-      .content {
-        padding: 40px;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="card">
       <img class="img-main" src="voice-search.jpg" alt="" />
       <div class="content">
-        <h2>Voice‑Powered Google Search</h2>
+        <h2>Voice‑Powered Search Launcher</h2>
         <div class="input-container">
           <input
             id="searchBox"
             type="text"
-            placeholder="Speak or type your query"
+            placeholder="Speak or type your command"
           />
           <button
             id="micBtn"
             title="Click and speak"
             aria-label="Microphone button"
           >
-            <!-- Inline SVG Microphone Icon -->
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path
                 d="M12 14a3 3 0 003-3V5a3 3 0 00-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 0014 0h-2zm-5 9a9 9 0 009-9h-2a7 7 0 01-14 0H3a9 9 0 009 9z"
@@ -129,70 +34,12 @@
             </svg>
           </button>
         </div>
+        <!-- <button id="toggleBtn">Start Listening</button> -->
+
         <div id="status"></div>
       </div>
     </div>
 
-    <script>
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      const micBtn = document.getElementById("micBtn");
-      const searchBox = document.getElementById("searchBox");
-      const statusDiv = document.getElementById("status");
-
-      if (!SpeechRecognition) {
-        statusDiv.textContent = "⚠️ Speech Recognition not supported.";
-      } else {
-        const recognition = new SpeechRecognition();
-        recognition.lang = "en-US";
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.continuous = false;
-        let listening = false;
-
-        function updateUI() {
-          micBtn.classList.toggle("listening", listening);
-          statusDiv.textContent = listening ? "🎤 Listening…" : "";
-        }
-
-        micBtn.addEventListener("click", () =>
-          listening ? recognition.stop() : recognition.start()
-        );
-
-        recognition.addEventListener("start", () => {
-          listening = true;
-          updateUI();
-        });
-
-        recognition.addEventListener("speechend", () => recognition.stop());
-
-        recognition.addEventListener("error", (e) => {
-          listening = false;
-          updateUI();
-          statusDiv.textContent = "⚠️ Error: " + e.error;
-        });
-
-        recognition.addEventListener("result", (event) => {
-          let transcript = event.results[0][0].transcript.trim();
-          transcript = transcript.replace(/^(search(?: for)?)\s+/i, "");
-
-          // If user says "clear", empty the input and do not search
-          if (/^clear$/i.test(transcript)) {
-            searchBox.value = "";
-            return;
-          }
-
-          searchBox.value = transcript;
-        });
-
-        recognition.addEventListener("end", () => {
-          listening = false;
-          updateUI();
-          const query = encodeURIComponent(searchBox.value);
-          if (query)
-            window.open(`https://www.google.com/search?q=${query}`, "_blank");
-        });
-      }
-    </script>
+    <script src="logic.js"></script>
   </body>
 </html>
